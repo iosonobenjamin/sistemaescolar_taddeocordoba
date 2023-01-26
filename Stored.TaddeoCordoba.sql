@@ -1,0 +1,26 @@
+-- SP 1 --
+DELIMITER $$
+
+CREATE PROCEDURE sp_APELLIDO_alumno ()
+
+BEGIN
+	SELECT
+		 *
+	FROM alumno
+	ORDER BY APELLIDO DESC LIMIT 10;
+END
+$$ 
+-- SP 2 --
+DELIMITER $$
+
+CREATE PROCEDURE sp_id_legajo_alumno (id_legajo INT)  -- incrementar numero de id_legajo -- 
+
+BEGIN
+	id_legajo INT =
+	(SELECT
+		MAX (IL.id_legajo) 
+        FROM ALUMNO)+1);
+	INSERT INTO alumno (ID_LEGAJO, id_DNI, APELLIDO, NOMBRE, DIRECCION, TELEFONO, MAIL, NACIONALIDAD) 
+    VALUES (:ID_LEGAJO, :ID_DNI, :APELLIDO, :NOMBRE, :DIRECCION, :TELFONO, :MAIL, :NACIONALIDAD);
+END
+$$
