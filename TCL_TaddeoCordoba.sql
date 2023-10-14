@@ -1,43 +1,57 @@
 -- TAREA 1 --
-SELECT * FROM sistemaescolar_taddeocordoba.log_asistencia_cursada; 
--- consulto el autocommit en que estado esta --
-select @@autocommit; 
 
--- actualizo el estado --
-set  @@autocommit = FALSE; set @@autocommit = 0;
+-- Consultar la tabla log_asistencia_cursada
+SELECT * FROM sistemaescolar_taddeocordoba.log_asistencia_cursada;
 
--- 1. Eliminacion de registros, reversion con rollback, actualizacion con commit -- 
-start transaction
-	delete from log_asistencia_cursada where id_log = '1';
-    delete from log_asistencia_cursada where id_log = '2';
+-- Consultar el estado de autocommit
+SELECT @@autocommit;
 
--- validar la reversion --
-rollback; 
+-- Desactivar el autocommit
+SET @@autocommit = 0;
 
--- aplicar la transaccion --
-commit; 
+-- 1. Eliminación de registros, reversión con rollback, actualización con commit --
+START TRANSACTION;
+DELETE FROM log_asistencia_cursada WHERE id_log = '1';
+DELETE FROM log_asistencia_cursada WHERE id_log = '2';
 
--- consulto la tabla log_asistencia_cursada --
-select *  from log_asistencia_cursada
+-- Validar la reversión de la transacción --
+ROLLBACK;
+
+-- Aplicar la transacción --
+COMMIT;
+
+-- Consultar la tabla log_asistencia_cursada --
+SELECT * FROM sistemaescolar_taddeocordoba.log_asistencia_cursada;
 
 -- TAREA 2 --
+
+-- Consultar la tabla asignatura
 SELECT * FROM sistemaescolar_taddeocordoba.asignatura;
--- insercion de registros transaccionales con savepoint, reversion de savepoint --
-INSERT INTO `asignatura` (`ID_ASIGNATURA`, `NOMBREASIGNATURA`) VALUES
-	('14FVT', 'FORMACION PARA LA VIDA Y TRABAJO'),
-	('15EA', 'ECONIMIA Y ADMINISTRACION'),
-	('16LE', 'LENGUA'),
-	('17AM', 'ARTE - MUSICA');
-savepoint actualizacion1;
 
-INSERT INTO `asignatura` (`ID_ASIGNATURA`, `NOMBREASIGNATURA`) VALUES
-	('18AAV', 'ARTE - ARTES VISUALES'),
-	('19AT', 'ARTE  - TEATRO'),
-	('20AD', 'ARTE - DANZA'),
-	('21AMA', 'AGRO Y MEDIO AMBIENTE'),
-	('22TU', 'TURISMO');
-savepoint actualizacion2;
+-- Inserción de registros transaccionales con savepoint, reversión de savepoint --
+BEGIN; -- Comenzar una nueva transacción
 
-rollback to actualizacion1;
+-- Primera inserción de registros con savepoint
+SAVEPOINT actualizacion1;
+INSERT INTO asignatura (ID_ASIGNATURA, NOMBREASIGNATURA) VALUES
+    ('14FVT', 'FORMACIÓN PARA LA VIDA Y TRABAJO'),
+    ('15EA', 'ECONOMÍA Y ADMINISTRACIÓN'),
+    ('16LE', 'LENGUA'),
+    ('17AM', 'ARTE - MÚSICA');
 
-select * from asignatura;
+-- Segunda inserción de registros con savepoint
+SAVEPOINT actualizacion2;
+INSERT INTO asignatura (ID_ASIGNATURA, NOMBREASIGNATURA) VALUES
+    ('18AAV', 'ARTE - ARTES VISUALES'),
+    ('19AT', 'ARTE - TEATRO'),
+    ('20AD', 'ARTE - DANZA'),
+    ('21AMA', 'AGRO Y MEDIO AMBIENTE'),
+    ('22TU', 'TURISMO');
+
+-- Revertir a savepoint actualizacion1
+ROLLBACK TO actualizacion1;
+
+-- Consultar la tabla asignatura después de la reversión
+SELECT * FROM sistemaescolar_taddeocordoba.asignatura;
+
+COMMIT; -- Confirmar y aplicar la transacción
